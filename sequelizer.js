@@ -1,0 +1,1 @@
+// .\node_modules\.bin\sequelize-auto -o "./models" -d sql12621001 -h sql12.freesqldatabase.com -u sql12621001 -p 3306 -x u23fQLDkLz -e mysql

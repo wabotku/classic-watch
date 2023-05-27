@@ -1,0 +1,30 @@
+{
+  "name": "master-setting",
+  "version": "1.0.0",
+  "description": "master setting",
+  "main": "index.js",
+  "scripts": {
+    "test": "hello walid"
+  },
+  "author": "walid",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "bluebird": "^3.7.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-oauth-server": "^2.0.0",
+    "fs": "^0.0.1-security",
+    "jsonwebtoken": "^9.0.0",
+    "moment": "^2.29.4",
+    "mysql2": "^3.3.2",
+    "path": "^0.12.7",
+    "sequelize": "^6.31.1",
+    "sequelize-auto": "^0.8.8",
+    "uuid": "^9.0.0",
+    "winston": "^3.9.0",
+    "winston-daily-rotate-file": "^4.7.1",
+    "winston-transport": "^4.5.0"
+  }
+}
