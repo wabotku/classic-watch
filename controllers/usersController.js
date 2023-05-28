@@ -4,9 +4,6 @@ const User = require("../models/init-models").users;
 const generalResp = require("../utilities/httpResp");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-// const db = require("../models/index");
-// const Role = require('../models').Role
-// const config = require('../config/configRoles');
 
 exports.findAll = async (req, res, next) => {
   let result;
@@ -31,15 +28,7 @@ exports.findAll = async (req, res, next) => {
 
 exports.checkDuplicateUserNameOrEmail = async (req, res, next) => {
   let result;
-  result = {
-    rc: generalResp.HTTP_OK,
-    rd: "Email dan Username tersedia",
-    data: {
-      auth: true,
-      email: req.body.email,
-      username: req.body.username,
-    },
-  };
+
   try {
     let getData = await sequelize.query(
       `select (username = :search_username) as is_valid_username , (email = :search_email) as is_valid_email from users where username = :search_username or email = :search_email limit 1`,
@@ -68,9 +57,21 @@ exports.checkDuplicateUserNameOrEmail = async (req, res, next) => {
       };
       res.locals.status = generalResp.HTTP_BADREQUEST;
       res.locals.response = JSON.stringify(result);
+
+      return next();
     }
 
+    result = {
+      rc: generalResp.HTTP_OK,
+      rd: "Email dan Username tersedia",
+      data: {
+        auth: true,
+        email: req.body.email,
+        username: req.body.username,
+      },
+    };
     res.locals.response = JSON.stringify(result);
+    next();
   } catch (error) {
     result = {
       rc: generalResp.HTTP_GENERALERROR,
@@ -87,20 +88,73 @@ exports.checkDuplicateUserNameOrEmail = async (req, res, next) => {
 };
 
 exports.signin = async (req, res, next) => {
-  result = {
-    auth: true,
-    id: req.body.email,
-    message: "Email and Username is available",
-  };
-
+  let result;
   try {
-    let data = await User.findOne({
+    let getData = await User.findOne({
       where: {
         username: req.body.username,
       },
     });
-    console.log(data);
+
+    if (!getData) {
+      result = {
+        rc: generalResp.HTTP_BADREQUEST,
+        rd: "User tidak ditemukan!",
+        data: {},
+      };
+      res.locals.status = generalResp.HTTP_BADREQUEST;
+      res.locals.response = JSON.stringify(result);
+
+      return next();
+    }
+
+    var passwordIsValid = bcrypt.compareSync(
+      req.body.password,
+      getData.password
+    );
+    if (!passwordIsValid) {
+      result = {
+        rc: generalResp.HTTP_BADREQUEST,
+        rd: "Password salah!",
+        data: {},
+      };
+      res.locals.status = generalResp.HTTP_BADREQUEST;
+      res.locals.response = JSON.stringify(result);
+
+      return next();
+    }
+
+    var param = {
+      id: getData.id,
+      username: getData.username,
+      email: getData.email,
+      phone: getData.phone,
+      token: getData.token,
+    };
+
+    var jwtToken =
+      "Bearer " +
+      jwt.sign(param, process.env.secret, {
+        expiresIn: 86400, //24h expired
+      });
+
+    param = {
+      ...param,
+      auth: jwtToken,
+    };
+    console.log(param);
+    console.log(jwtToken);
+
+    result = {
+      rc: generalResp.HTTP_OK,
+      rd: "Login Sukses",
+      data: {},
+    };
+    res.locals.response = JSON.stringify(result);
+
+    next();
   } catch (error) {
     console.error(error);
+    next();
   }
 };

@@ -1,5 +1,4 @@
 require("./kickstart");
-require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const logger = require("./utilities/logger");
@@ -9,6 +8,7 @@ const port = process.env.PORT || 3000;
 const users = require("./routes/users");
 const middleware = require("./utilities/middleware");
 
+// console.log(JSON.parse(process.env.ROLES))
 logger.verbose("==================KICK START==================");
 
 app.use(cors());
@@ -16,11 +16,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use(
-    "/users", 
-    users,
-    middleware.recordHit,
-    middleware.printForwardRequestResponse
-    );
+  "/users",
+  users,
+  middleware.recordHit,
+  middleware.printForwardRequestResponse
+);
 
 app.listen(port, () => {
   logger.verbose(`Classic Watch User API listening at http://${host}:${port}`);
