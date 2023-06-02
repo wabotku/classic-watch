@@ -5,6 +5,11 @@ const generalResp = require("../utilities/httpResp");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+exports.migrate = async (req, res, next) => {
+  await User.sync();
+  next();
+};
+
 exports.findAll = async (req, res, next) => {
   let result;
   try {

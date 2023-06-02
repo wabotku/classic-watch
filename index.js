@@ -1,4 +1,5 @@
 require("./kickstart");
+require("./migrate")();
 const express = require("express");
 const app = express();
 const cors = require("cors");
