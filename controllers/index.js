@@ -1,5 +1,10 @@
-const jwtController = require('./jwtController')
-const usersControllers = require('./usersControllers')
+const jwtController = require("./jwtController");
+const usersController = require("./usersController");
+
+module.exports = {
+  usersController,
+  jwtController,
+};
 
 module.exports = {
     jwtController, 
