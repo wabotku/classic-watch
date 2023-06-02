@@ -1,11 +1,10 @@
-const User = require("../controllers/usersController");
-const Jwt = require("../controllers/jwtController");
-const router = require("express").Router();
+const router = require('express').Router()
+const controllers = require("../controllers/index");
 
-router.post("/", User.findAll);
+router.post("/", controllers.usersController.findAll);
 
-router.post("/verify-data", User.checkDuplicateUserNameOrEmail);
+router.post("/verify-data", controllers.usersController.checkDuplicateUserNameOrEmail);
 
-router.post("/signin", [Jwt.verifyToken],User.signin);
+router.post("/signin", [controllers.jwtController.verifyToken], controllers.usersController.signin);
 
-module.exports = router;
+module.exports = router
