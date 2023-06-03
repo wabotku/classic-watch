@@ -5,8 +5,3 @@ module.exports = {
   usersController,
   jwtController,
 };
-
-module.exports = {
-    jwtController, 
-    usersControllers, 
-}
