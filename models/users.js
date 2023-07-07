@@ -34,27 +34,18 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       unique: "token"
     },
-    id_class: {
-      type: DataTypes.SMALLINT,
-      allowNull: false
-    },
-    via: {
-      type: DataTypes.STRING(255),
-      allowNull: false
-    },
     createdAt: {
       type: DataTypes.DATE,
-      field: 'created_at',
+      field: 'createdAt',
       allowNull: false
     },
     updatedAt: {
       type: DataTypes.DATE,
-      field: 'updated_at',
-      allowNull: false
+      field: 'updatedAt',
     },
     deletedAt: {
       type: DataTypes.DATE,
-      field: 'deleted_at'
+      field: 'deletedAt'
     }
   }, {
     sequelize,

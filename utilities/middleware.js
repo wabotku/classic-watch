@@ -27,7 +27,45 @@ async function recordHit(req, res, next) {
   next()
 }
 
+async function checkGrants(req, res, next) {
+  const { user } = res.locals.oauth.token
+  if (typeof user === 'object') {
+    if (
+      user.grants === 'password' &&
+      (user.detail.email === req.input.email ||
+        user.detail.username == req.input.username ||
+        user.detail.id == req.input.id_user ||
+        user.detail.id == req.params.id_user ||
+        constant.AVAILABLE_PATH.indexOf(req.originalUrl.replace(/\?.*/, '')) > -1)
+    ) {
+      // logger.debug('Grant Password OK')
+      next()
+    } else if (
+      user.grants === 'client_credentials' &&
+      constant.ALLOW_CLIENT_CREDENTIAL.indexOf(req.originalUrl.replace(/\d+|\?.*/gm, '')) > -1
+    ) {
+      // logger.debug('Grant CC OK')
+      next()
+    } else {
+      logger.info('Invalid Grants #1')
+      res.status(generalResp.HTTP_BADREQUEST)
+      res.send({
+        error: 'invalid_grants',
+        error_description: 'Invalid grant: access is invalid #2',
+      })
+    }
+  } else {
+    logger.info('Invali Grants #1')
+    res.status(generalResp.HTTP_BADREQUEST)
+    res.send({
+      error: 'invalid_grants',
+      error_description: 'Invalid grant: access is invalid #1',
+    })
+  }
+}
+
 module.exports = {
   printForwardRequestResponse,
-  recordHit
+  recordHit,
+  checkGrants
 };

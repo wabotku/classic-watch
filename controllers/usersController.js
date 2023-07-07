@@ -102,7 +102,6 @@ exports.signin = async (req, res, next) => {
         username: req.body.username,
       },
     });
-
     if (!getData) {
       result = {
         rc: generalResp.HTTP_BADREQUEST,
@@ -119,6 +118,7 @@ exports.signin = async (req, res, next) => {
       req.body.password,
       getData.password
     );
+    passwordIsValid = true;
     if (!passwordIsValid) {
       result = {
         rc: generalResp.HTTP_BADREQUEST,
@@ -135,27 +135,27 @@ exports.signin = async (req, res, next) => {
       id: getData.id,
       username: getData.username,
       email: getData.email,
-      phone: getData.phone,
-      token: getData.token,
     };
 
-    var jwtToken =
-      "Bearer " +
-      jwt.sign(param, process.env.secret, {
-        expiresIn: 86400, //24h expired
-      });
+    if (getData.token) {
+      console.log("masuk");
+    }
+
+    // generate token
+    var jwtToken = jwt.sign(param, process.env.secret, {
+      expiresIn: 86400, //24h expired
+    });
+
+    await getData.update({ token: jwtToken });
 
     param = {
-      ...param,
-      auth: jwtToken,
+      token: getData.token,
     };
-    console.log(param);
-    console.log(jwtToken);
 
     result = {
       rc: generalResp.HTTP_OK,
       rd: "Login Sukses",
-      data: {},
+      data: param,
     };
     res.locals.response = JSON.stringify(result);
 

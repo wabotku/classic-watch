@@ -7,4 +7,5 @@ router.post("/verify-data", controllers.usersController.checkDuplicateUserNameOr
 
 router.post("/signin", [controllers.jwtController.verifyToken], controllers.usersController.signin);
 
+
 module.exports = router
