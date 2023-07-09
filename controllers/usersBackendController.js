@@ -75,8 +75,6 @@ exports.checkDuplicateUserNameOrEmail = async (req, res, next) => {
 exports.signin = async (req, res, next) => {
 
   let result;
-    console.log('kvbfkdfgsdf');
-    console.log(req.body);
     try {
     let getData = await UserBE.findOne({
       where: {
