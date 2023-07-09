@@ -15,6 +15,10 @@ router.post(
   controllers.usersController.signin
 );
 
-router.post("/refresh", controllers.usersController.refresh);
+router.post(
+  "/refresh",
+  [controllers.jwtController.verifyToken],
+  controllers.usersController.refresh
+);
 
 module.exports = router;

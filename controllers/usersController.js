@@ -139,26 +139,27 @@ exports.signin = async (req, res, next) => {
       roles: getData.privilege,
     };
 
-    if (getData.token) {
-      // console.log("masuk");
-    }
+    var refreshToken = getData.refreshToken;
 
-    // generate token
+    jwt.verify(getData.refreshToken, process.env.secret, (err, decoded) => {
+      if (err) {
+        if (err.name == "TokenExpiredError") {
+          refreshToken = jwt.sign(param, process.env.secret, {
+            expiresIn: "24h",
+          });
+        } else {
+          return res.status(500).send({
+            auth: false,
+            message: "Error",
+            errors: err,
+          });
+        }
+      }
+    });
+
     var jwtToken = jwt.sign(param, process.env.secret, {
-      expiresIn: "15m", //24h expired
+      expiresIn: "1h", //24h expired
     });
-
-    const refreshToken = jwt.sign(param, process.env.secret, {
-      expiresIn: "1h",
-    });
-
-    // Assigning refresh token in http-only cookie
-    // res.cookie("jwt", refreshToken, {
-    //   httpOnly: true,
-    //   sameSite: "None",
-    //   secure: true,
-    //   maxAge: 24 * 60 * 60 * 1000,
-    // });
 
     await getData.update({ refreshToken: refreshToken });
 
@@ -182,35 +183,37 @@ exports.signin = async (req, res, next) => {
 };
 
 exports.refresh = async (req, res, next) => {
-  if (req.headers.cookie) {
-    // Destructuring refreshToken from cookie
-    const refreshToken = req.headers.cookies;
+  // Verifying refresh token
+  const refreshToken = req.headers.authorization;
+  let token = refreshToken.split(" ")[1];
 
-    console.log(refreshToken);
+  jwt.verify(token, process.env.SECRET, (err, decoded) => {
+    if (err) {
+      // Wrong Refesh Token
+      return res.status(406).json({ message: "Unauthorized" });
+    } else {
+      console.log(decoded);
+      // Correct token we send a new access token
+      const accessToken = jwt.sign(
+        {
+          id: decoded.id,
+          username: decoded.username,
+          email: decoded.email,
+          roles: decoded.roles,
+        },
+        process.env.SECRET,
+        {
+          expiresIn: "1h",
+        }
+      );
+      result = {
+        rc: generalResp.HTTP_OK,
+        rd: "Refresh Token Sukses",
+        data: { refreshToken: accessToken },
+      };
+      res.locals.response = JSON.stringify(result);
+    }
+  });
 
-    next();
-    // Verifying refresh token
-    // jwt.verify(refreshToken, process.env.SECRET, (err, decoded) => {
-    //   if (err) {
-    //     // Wrong Refesh Token
-    //     return res.status(406).json({ message: "Unauthorized" });
-    //   } else {
-    //     // Correct token we send a new access token
-    //     const accessToken = jwt.sign(
-    //       {
-    //         username: userCredentials.username,
-    //         email: userCredentials.email,
-    //       },
-    //       process.env.SECRET,
-    //       {
-    //         expiresIn: "10m",
-    //       }
-    //     );
-    //     return res.json({ accessToken });
-    //   }
-    // });
-  } else {
-    // return res.status(406).json({ message: "Unauthorized" });
-  }
   next();
 };
