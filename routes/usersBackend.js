@@ -21,4 +21,9 @@ router.post(
   controllers.usersBackendController.refresh
 );
 
+router.post(
+  "/create",
+  controllers.usersBackendController.create
+);
+
 module.exports = router;

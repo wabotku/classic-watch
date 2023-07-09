@@ -192,7 +192,6 @@ exports.refresh = async (req, res, next) => {
       // Wrong Refesh Token
       return res.status(406).json({ message: "Unauthorized" });
     } else {
-      console.log(decoded);
       // Correct token we send a new access token
       const accessToken = jwt.sign(
         {

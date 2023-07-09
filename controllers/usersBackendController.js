@@ -73,9 +73,8 @@ exports.checkDuplicateUserNameOrEmail = async (req, res, next) => {
 };
 
 exports.signin = async (req, res, next) => {
-
   let result;
-    try {
+  try {
     let getData = await UserBE.findOne({
       where: {
         username: req.body.username,
@@ -171,7 +170,6 @@ exports.refresh = async (req, res, next) => {
       // Wrong Refesh Token
       return res.status(406).json({ message: "Unauthorized" });
     } else {
-      console.log(decoded);
       // Correct token we send a new access token
       const accessToken = jwt.sign(
         {
@@ -199,36 +197,33 @@ exports.refresh = async (req, res, next) => {
 
 exports.create = async (req, res, next) => {
   // Verifying refresh token
-  const refreshToken = req.headers.authorization;
-  let token = refreshToken.split(" ")[1];
-
-  jwt.verify(token, process.env.SECRET, (err, decoded) => {
-    if (err) {
-      // Wrong Refesh Token
-      return res.status(406).json({ message: "Unauthorized" });
-    } else {
-      console.log(decoded);
-      // Correct token we send a new access token
-      const accessToken = jwt.sign(
-        {
-          id: decoded.id,
-          username: decoded.username,
-          email: decoded.email,
-          roles: decoded.roles,
-        },
-        process.env.SECRET,
-        {
-          expiresIn: "1h",
-        }
-      );
-      result = {
-        rc: generalResp.HTTP_OK,
-        rd: "Refresh Token Sukses",
-        data: { refreshToken: accessToken },
-      };
-      res.locals.response = JSON.stringify(result);
-    }
+  let result;
+  var hashedPassword = bcrypt.hashSync(req.body.password, 10);
+  var param = {
+    username: req.body.username,
+    email: req.body.email,
+    roles: req.body.role,
+  };
+  
+  var refreshToken = jwt.sign(param, process.env.secret, {
+    expiresIn: "24h",
   });
-
+  try {
+    let getData = await sequelize.query(
+      `insert into users_backend (username, password, email, phone, privilege, refreshToken) values (:username, :password, :email, :phone, :privilege, :refreshToken)`,
+      {
+        replacements: {
+          username: `${req.body.username}`,
+          password: `${hashedPassword}`,
+          email: `${req.body.email}`,
+          phone: `${req.body.phone}`,
+          privilege: `${req.body.role}`,
+          refreshToken: `${refreshToken}`,
+        },
+        type: QueryTypes.INSERT,
+      }
+    );
+  } catch (error) {}
+  return res.status(406).json({ message: "Unauthorized" });
   next();
 };
