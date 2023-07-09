@@ -1,6 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('users', {
-    uuid: {
+  return sequelize.define('users_backend', {
+    id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -32,32 +32,20 @@ module.exports = function(sequelize, DataTypes) {
     refreshToken: {
       type: DataTypes.STRING(255),
       allowNull: false,
-      unique: "refreshToken"
+      unique: "token"
     },
     isActive: {
-      type: DataTypes.BOOLEAN(1),
-      allowNull: false,
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: 1
     },
     privilege: {
       type: DataTypes.STRING(100),
-      allowNull: false,
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      field: 'createdAt',
-      allowNull: false
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      field: 'updatedAt',
-    },
-    deletedAt: {
-      type: DataTypes.DATE,
-      field: 'deletedAt'
+      allowNull: true
     }
   }, {
     sequelize,
-    tableName: 'users',
+    tableName: 'users_backend',
     timestamps: true,
     paranoid: true,
     indexes: [
@@ -98,7 +86,7 @@ module.exports = function(sequelize, DataTypes) {
         unique: true,
         using: "BTREE",
         fields: [
-          { name: "token" },
+          { name: "refreshToken" },
         ]
       },
     ]

@@ -79,20 +79,19 @@ async function getUserInfo(req, res, next) {
     data: "",
   };
   res.locals.response = JSON.stringify(result);
-
   const checker = {
     username: "required",
     password: "required",
   };
 
-  if (req.originalUrl === "/user/sign-in") {
+  if (req.originalUrl === "/user/signin") {
     checker.username = "username";
     checker.password = "string|numeric|maxLength:15";
   }
 
   const v = new Validator(req.body, checker);
   const match = await v.check();
-  
+
   if (!match) {
     result = {
       rc: generalResp.HTTP_BADREQUEST,
@@ -108,21 +107,21 @@ async function getUserInfo(req, res, next) {
 }
 
 async function checkValidToken(req, res, next) {
-  const result = {}
-  result.status = generalResp.HTTP_UNAUTHORIZED
-  result.rc = generalResp.HTTP_UNAUTHORIZED
-  result.rd = 'Invalid Token'
-  const authUser = req.headers.authorization.replace('Bearer ', '')
+  const result = {};
+  result.status = generalResp.HTTP_UNAUTHORIZED;
+  result.rc = generalResp.HTTP_UNAUTHORIZED;
+  result.rd = "Invalid Token";
+  const authUser = req.headers.authorization.replace("Bearer ", "");
 
-  const check = await model.checkToken(authUser)
+  const check = await model.checkToken(authUser);
 
   if (check !== undefined) {
-    result.status = generalResp.HTTP_OK
-    result.rc = generalResp.HTTP_OK
-    result.rd = 'Valid Token'
+    result.status = generalResp.HTTP_OK;
+    result.rc = generalResp.HTTP_OK;
+    result.rd = "Valid Token";
   }
 
-  res.status(result.status).send(result)
+  res.status(result.status).send(result);
 }
 
 module.exports = {
