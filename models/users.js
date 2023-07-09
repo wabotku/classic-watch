@@ -29,10 +29,10 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       unique: "password"
     },
-    token: {
+    refreshToken: {
       type: DataTypes.STRING(255),
       allowNull: false,
-      unique: "token"
+      unique: "refreshToken"
     },
     isActive: {
       type: DataTypes.BOOLEAN(1),

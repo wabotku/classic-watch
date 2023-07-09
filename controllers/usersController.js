@@ -145,25 +145,26 @@ exports.signin = async (req, res, next) => {
 
     // generate token
     var jwtToken = jwt.sign(param, process.env.secret, {
-      expiresIn: 86400, //24h expired
+      expiresIn: "15m", //24h expired
     });
 
     const refreshToken = jwt.sign(param, process.env.secret, {
-      expiresIn: "1d",
+      expiresIn: "1h",
     });
 
     // Assigning refresh token in http-only cookie
-    res.cookie("jwt", refreshToken, {
-      httpOnly: true,
-      sameSite: "None",
-      secure: true,
-      maxAge: 24 * 60 * 60 * 1000,
-    });
+    // res.cookie("jwt", refreshToken, {
+    //   httpOnly: true,
+    //   sameSite: "None",
+    //   secure: true,
+    //   maxAge: 24 * 60 * 60 * 1000,
+    // });
 
-    await getData.update({ token: jwtToken });
+    await getData.update({ refreshToken: refreshToken });
 
     param = {
-      token: getData.token,
+      token: jwtToken,
+      refreshToken: refreshToken,
     };
 
     result = {
