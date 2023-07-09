@@ -34,6 +34,14 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       unique: "token"
     },
+    isActive: {
+      type: DataTypes.BOOLEAN(1),
+      allowNull: false,
+    },
+    privilege: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+    },
     createdAt: {
       type: DataTypes.DATE,
       field: 'createdAt',

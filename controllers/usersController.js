@@ -4,6 +4,7 @@ const User = require("../models/init-models").users;
 const generalResp = require("../utilities/httpResp");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const middleware = require("../utilities/middleware");
 
 exports.migrate = async (req, res, next) => {
   await User.sync();
@@ -113,12 +114,12 @@ exports.signin = async (req, res, next) => {
 
       return next();
     }
-
+    // var hashedPassword = bcrypt.hashSync(getData.password, 10);
     var passwordIsValid = bcrypt.compareSync(
       req.body.password,
       getData.password
     );
-    passwordIsValid = true;
+
     if (!passwordIsValid) {
       result = {
         rc: generalResp.HTTP_BADREQUEST,
@@ -135,15 +136,28 @@ exports.signin = async (req, res, next) => {
       id: getData.id,
       username: getData.username,
       email: getData.email,
+      roles: getData.privilege,
     };
 
     if (getData.token) {
-      console.log("masuk");
+      // console.log("masuk");
     }
 
     // generate token
     var jwtToken = jwt.sign(param, process.env.secret, {
       expiresIn: 86400, //24h expired
+    });
+
+    const refreshToken = jwt.sign(param, process.env.secret, {
+      expiresIn: "1d",
+    });
+
+    // Assigning refresh token in http-only cookie
+    res.cookie("jwt", refreshToken, {
+      httpOnly: true,
+      sameSite: "None",
+      secure: true,
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     await getData.update({ token: jwtToken });
@@ -164,4 +178,38 @@ exports.signin = async (req, res, next) => {
     console.error(error);
     next();
   }
+};
+
+exports.refresh = async (req, res, next) => {
+  if (req.headers.cookie) {
+    // Destructuring refreshToken from cookie
+    const refreshToken = req.headers.cookies;
+
+    console.log(refreshToken);
+
+    next();
+    // Verifying refresh token
+    // jwt.verify(refreshToken, process.env.SECRET, (err, decoded) => {
+    //   if (err) {
+    //     // Wrong Refesh Token
+    //     return res.status(406).json({ message: "Unauthorized" });
+    //   } else {
+    //     // Correct token we send a new access token
+    //     const accessToken = jwt.sign(
+    //       {
+    //         username: userCredentials.username,
+    //         email: userCredentials.email,
+    //       },
+    //       process.env.SECRET,
+    //       {
+    //         expiresIn: "10m",
+    //       }
+    //     );
+    //     return res.json({ accessToken });
+    //   }
+    // });
+  } else {
+    // return res.status(406).json({ message: "Unauthorized" });
+  }
+  next();
 };
