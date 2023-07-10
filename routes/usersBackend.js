@@ -22,8 +22,43 @@ router.post(
 );
 
 router.post(
+  "/",
+  controllers.usersBackendController.findAll
+);
+
+router.post(
   "/create",
   controllers.usersBackendController.create
+);
+
+router.post(
+  "/update/:id",
+  controllers.usersBackendController.update
+);
+
+router.post(
+  "/delete/:id",
+  controllers.usersBackendController.delete
+);
+
+router.post(
+  "/roles",
+  controllers.usersBackendController.roles
+);
+
+router.post(
+  "/roles/create",
+  controllers.usersBackendController.rolesCreate
+);
+
+router.post(
+  "/roles/update/:id",
+  controllers.usersBackendController.rolesUpdate
+);
+
+router.post(
+  "/roles/delete/:id",
+  controllers.usersBackendController.rolesDelete
 );
 
 module.exports = router;

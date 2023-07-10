@@ -21,5 +21,6 @@ db.sequelize = sequelize;
 db.users = require("./users")(sequelize, Sequelize);
 db.users_backend = require("./users_backend")(sequelize, Sequelize);
 db.users_address = require("./users_address")(sequelize, Sequelize);
+db.roles = require("./roles")(sequelize, Sequelize);
 
 module.exports = db;

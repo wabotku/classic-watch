@@ -1,10 +1,12 @@
 const { Op, QueryTypes } = require("../models/init-models").Sequelize;
 const sequelize = require("../models/init-models").sequelize;
 const UserBE = require("../models/init-models").users_backend;
+const Roles = require("../models/init-models").roles;
 const generalResp = require("../utilities/httpResp");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const middleware = require("../utilities/middleware");
+const { v4: uuidv4 } = require("uuid");
 
 exports.migrate = async (req, res, next) => {
   await User.sync();
@@ -195,6 +197,28 @@ exports.refresh = async (req, res, next) => {
   next();
 };
 
+exports.findAll = async (req, res, next) => {
+  let result;
+  try {
+    let getData = await Roles.findAll({
+      where: {
+        isActive: 1,
+      },
+    });
+
+    result = {
+      rc: generalResp.HTTP_OK,
+      rd: "Login Sukses",
+      data: getData,
+    };
+    res.locals.response = JSON.stringify(result);
+    next();
+  } catch (error) {
+    console.error(error);
+    next();
+  }
+};
+
 exports.create = async (req, res, next) => {
   // Verifying refresh token
   let result;
@@ -204,16 +228,18 @@ exports.create = async (req, res, next) => {
     email: req.body.email,
     roles: req.body.role,
   };
-  
+
   var refreshToken = jwt.sign(param, process.env.secret, {
     expiresIn: "24h",
   });
   try {
     let getData = await sequelize.query(
-      `insert into users_backend (username, password, email, phone, privilege, refreshToken) values (:username, :password, :email, :phone, :privilege, :refreshToken)`,
+      `insert into users_backend (username,name, password, email, phone, privilege, refreshToken) values (:username, :name, :password, :email, :phone, :privilege, :refreshToken)`,
       {
         replacements: {
+          uuid: uuidv4(),
           username: `${req.body.username}`,
+          name: `${req.body.name}`,
           password: `${hashedPassword}`,
           email: `${req.body.email}`,
           phone: `${req.body.phone}`,
@@ -223,7 +249,267 @@ exports.create = async (req, res, next) => {
         type: QueryTypes.INSERT,
       }
     );
-  } catch (error) {}
-  return res.status(406).json({ message: "Unauthorized" });
+
+    result = {
+      rc: generalResp.HTTP_OK,
+      rd: "Create Sukses",
+      data: 1,
+    };
+    res.locals.response = JSON.stringify(result);
+  } catch (error) {
+    result = {
+      rc: generalResp.HTTP_BADREQUEST,
+      rd: "Create Gagal",
+      data: error.errors,
+    };
+    res.locals.response = JSON.stringify(result);
+  }
+
+  next();
+};
+
+exports.update = async (req, res, next) => {
+  let result;
+  try {
+    let getData = await Roles.findOne({
+      where: {
+        uuid: req.params.id,
+      },
+    });
+
+    if (!getData) {
+      result = {
+        rc: generalResp.HTTP_BADREQUEST,
+        rd: "Data tidak ditemukan!",
+        data: {},
+      };
+      res.locals.status = generalResp.HTTP_BADREQUEST;
+      res.locals.response = JSON.stringify(result);
+
+      return next();
+    }
+
+    let updateData = await Roles.update(
+      { deskripsiPrivilege: req.body.deskripsiPrivilege },
+      {
+        where: {
+          uuid: req.params.id,
+        },
+      }
+    );
+
+    result = {
+      rc: generalResp.HTTP_OK,
+      rd: "Create Sukses",
+      data: updateData[0],
+    };
+    res.locals.response = JSON.stringify(result);
+  } catch (error) {
+    result = {
+      rc: generalResp.HTTP_BADREQUEST,
+      rd: "Create Error",
+      data: error.errors,
+    };
+    res.locals.response = JSON.stringify(result);
+    console.error(error);
+  }
+  next();
+};
+
+exports.delete = async (req, res, next) => {
+  let result;
+  try {
+    let getData = await Roles.findOne({
+      where: {
+        uuid: req.params.id,
+      },
+    });
+
+    if (!getData) {
+      result = {
+        rc: generalResp.HTTP_BADREQUEST,
+        rd: "Data tidak ditemukan!",
+        data: {},
+      };
+      res.locals.status = generalResp.HTTP_BADREQUEST;
+      res.locals.response = JSON.stringify(result);
+
+      return next();
+    }
+
+    let updateData = await Roles.update(
+      { isActive: 0 },
+      {
+        where: {
+          uuid: req.params.id,
+        },
+      }
+    );
+
+    result = {
+      rc: generalResp.HTTP_OK,
+      rd: "Delete Sukses",
+      data: 1,
+    };
+    res.locals.response = JSON.stringify(result);
+  } catch (error) {
+    result = {
+      rc: generalResp.HTTP_BADREQUEST,
+      rd: "Delete Error",
+      data: error.errors,
+    };
+    res.locals.response = JSON.stringify(result);
+    console.error(error);
+  }
+  next();
+};
+
+exports.roles = async (req, res, next) => {
+  let result;
+  try {
+    let getData = await Roles.findAll({
+      where: {
+        isActive: 1,
+      },
+    });
+
+    result = {
+      rc: generalResp.HTTP_OK,
+      rd: "Login Sukses",
+      data: getData,
+    };
+    res.locals.response = JSON.stringify(result);
+    next();
+  } catch (error) {
+    console.error(error);
+    next();
+  }
+};
+
+exports.rolesCreate = async (req, res, next) => {
+  let result;
+  try {
+    let getData = await sequelize.query(
+      `insert into roles (uuid, deskripsiPrivilege) values (:uuid, :deskripsiPrivilege)`,
+      {
+        replacements: {
+          uuid: uuidv4(),
+          deskripsiPrivilege: `${req.body.deskripsiPrivilege}`,
+        },
+        type: QueryTypes.INSERT,
+      }
+    );
+
+    result = {
+      rc: generalResp.HTTP_OK,
+      rd: "Create Sukses",
+      data: 1,
+    };
+    res.locals.response = JSON.stringify(result);
+  } catch (error) {
+    result = {
+      rc: generalResp.HTTP_BADREQUEST,
+      rd: "Create Error",
+      data: error.errors,
+    };
+    res.locals.response = JSON.stringify(result);
+    console.error(error);
+  }
+  next();
+};
+
+exports.rolesUpdate = async (req, res, next) => {
+  let result;
+  try {
+    let getData = await Roles.findOne({
+      where: {
+        uuid: req.params.id,
+      },
+    });
+
+    if (!getData) {
+      result = {
+        rc: generalResp.HTTP_BADREQUEST,
+        rd: "Data tidak ditemukan!",
+        data: {},
+      };
+      res.locals.status = generalResp.HTTP_BADREQUEST;
+      res.locals.response = JSON.stringify(result);
+
+      return next();
+    }
+
+    let updateData = await Roles.update(
+      { deskripsiPrivilege: req.body.deskripsiPrivilege },
+      {
+        where: {
+          uuid: req.params.id,
+        },
+      }
+    );
+
+    result = {
+      rc: generalResp.HTTP_OK,
+      rd: "Create Sukses",
+      data: updateData[0],
+    };
+    res.locals.response = JSON.stringify(result);
+  } catch (error) {
+    result = {
+      rc: generalResp.HTTP_BADREQUEST,
+      rd: "Create Error",
+      data: error.errors,
+    };
+    res.locals.response = JSON.stringify(result);
+    console.error(error);
+  }
+  next();
+};
+
+exports.rolesDelete = async (req, res, next) => {
+  let result;
+  try {
+    let getData = await Roles.findOne({
+      where: {
+        uuid: req.params.id,
+      },
+    });
+
+    if (!getData) {
+      result = {
+        rc: generalResp.HTTP_BADREQUEST,
+        rd: "Data tidak ditemukan!",
+        data: {},
+      };
+      res.locals.status = generalResp.HTTP_BADREQUEST;
+      res.locals.response = JSON.stringify(result);
+
+      return next();
+    }
+
+    let updateData = await Roles.update(
+      { isActive: 0 },
+      {
+        where: {
+          uuid: req.params.id,
+        },
+      }
+    );
+
+    result = {
+      rc: generalResp.HTTP_OK,
+      rd: "Delete Sukses",
+      data: 1,
+    };
+    res.locals.response = JSON.stringify(result);
+  } catch (error) {
+    result = {
+      rc: generalResp.HTTP_BADREQUEST,
+      rd: "Delete Error",
+      data: error.errors,
+    };
+    res.locals.response = JSON.stringify(result);
+    console.error(error);
+  }
   next();
 };
