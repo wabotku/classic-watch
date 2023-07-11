@@ -1,7 +1,7 @@
 
-const dbConfig = require("../config/db.config");
+const dbConfig = require("../../config/db.config");
 const Sequelize = require("sequelize");
-const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
+const sequelize = new Sequelize(dbConfig.DB_MERCHANT, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,
   dialect: dbConfig.dialect,
   operatorAlias: false,
@@ -18,9 +18,8 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 // define semua models yang ada pada aplikasi
-db.users = require("./users")(sequelize, Sequelize);
-db.users_backend = require("./users_backend")(sequelize, Sequelize);
-db.users_address = require("./users_address")(sequelize, Sequelize);
-db.roles = require("./roles")(sequelize, Sequelize);
+db.merchant = require("./cw_m_merchant")(sequelize, Sequelize);
+db.merk = require("./cw_m_merk")(sequelize, Sequelize);
+db.product = require("./cw_m_product")(sequelize, Sequelize);
 
 module.exports = db;

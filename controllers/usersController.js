@@ -1,6 +1,6 @@
-const { Op, QueryTypes } = require("../models/init-models").Sequelize;
-const sequelize = require("../models/init-models").sequelize;
-const User = require("../models/init-models").users;
+const { Op, QueryTypes } = require("../models/users/init-models").Sequelize;
+const sequelize = require("../models/users/init-models").sequelize;
+const User = require("../models/users/init-models").users;
 const generalResp = require("../utilities/httpResp");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");

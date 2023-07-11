@@ -1,7 +1,7 @@
-const { Op, QueryTypes } = require("../models/init-models").Sequelize;
-const sequelize = require("../models/init-models").sequelize;
-const UserBE = require("../models/init-models").users_backend;
-const Roles = require("../models/init-models").roles;
+const { Op, QueryTypes } = require("../models/users/init-models").Sequelize;
+const sequelize = require("../models/users/init-models").sequelize;
+const UserBE = require("../models/users/init-models").users_backend;
+const Roles = require("../models/users/init-models").roles;
 const generalResp = require("../utilities/httpResp");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -208,7 +208,7 @@ exports.findAll = async (req, res, next) => {
 
     result = {
       rc: generalResp.HTTP_OK,
-      rd: "Login Sukses",
+      rd: "Sukses",
       data: getData,
     };
     res.locals.response = JSON.stringify(result);
@@ -233,7 +233,7 @@ exports.create = async (req, res, next) => {
     expiresIn: "24h",
   });
   try {
-    let getData = await sequelize.query(
+    let insertData = await sequelize.query(
       `insert into users_backend (username,name, password, email, phone, privilege, refreshToken) values (:username, :name, :password, :email, :phone, :privilege, :refreshToken)`,
       {
         replacements: {
@@ -300,7 +300,7 @@ exports.update = async (req, res, next) => {
 
     result = {
       rc: generalResp.HTTP_OK,
-      rd: "Create Sukses",
+      rd: "Update Sukses",
       data: updateData[0],
     };
     res.locals.response = JSON.stringify(result);

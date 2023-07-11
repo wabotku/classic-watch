@@ -36,6 +36,13 @@ app.use(
   middleware.printForwardRequestResponse
 );
 
+app.use(
+  "/merchant",
+  routes.merchant,
+  middleware.recordHit,
+  middleware.printForwardRequestResponse
+);
+
 const host = process.env.HOST || "127.0.0.1";
 const port = process.env.PORT || 3000;
 
