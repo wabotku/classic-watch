@@ -364,7 +364,7 @@ exports.delete = async (req, res, next) => {
   next();
 };
 
-exports.roles = async (req, res, next) => {
+exports.findAll = async (req, res, next) => {
   let result;
   try {
     let getData = await Roles.findAll({

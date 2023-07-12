@@ -21,7 +21,7 @@ router.post(
   controllers.usersBackendController.refresh
 );
 
-router.post(
+router.get(
   "/",
   controllers.usersBackendController.findAll
 );
@@ -41,9 +41,9 @@ router.post(
   controllers.usersBackendController.delete
 );
 
-router.post(
+router.get(
   "/roles",
-  controllers.usersBackendController.roles
+  controllers.usersBackendController.findAll
 );
 
 router.post(
