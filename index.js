@@ -7,6 +7,7 @@ const logger = require("./utilities/logger");
 
 const routes = require("./routes/index");
 const middleware = require("./utilities/middleware");
+const constant = require("./utilities/constant");
 
 // console.log(JSON.parse(process.env.ROLES))
 logger.verbose("==================KICK START==================");
@@ -30,14 +31,16 @@ app.use(
 );
 
 app.use(
-  "/users-backend",
+  constant.USERBACKEND_PATH,
+  middleware.checkGrants,
   routes.usersBackend,
   middleware.recordHit,
-  middleware.printForwardRequestResponse
+  middleware.printForwardRequestResponse,
 );
 
 app.use(
   "/merchant",
+  middleware.checkGrants,
   routes.merchant,
   middleware.recordHit,
   middleware.printForwardRequestResponse

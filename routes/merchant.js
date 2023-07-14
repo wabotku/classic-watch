@@ -6,7 +6,7 @@ const middleware = require("../utilities/middleware");
 // >>>>>>>>>>>>>>>>>>>>>>>>>>> Merchant <<<<<<<<<<<<<<<<<<<<<<<<<<<
 router.get(
   "/",
-  controllers.merchantController.findAll
+  controllers.merchantController.getMerchant
 );
 
 router.post(

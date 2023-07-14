@@ -2,6 +2,8 @@ const logger = require("../utilities/logger");
 const { v4: uuidv4 } = require("uuid");
 const { Validator } = require("node-input-validator");
 const generalResp = require("../utilities/httpResp");
+const jwt = require("jsonwebtoken");
+const constant = require("./constant");
 
 async function printForwardRequestResponse(req, res, next) {
   res.set("Content-Type", "application/json");
@@ -31,41 +33,60 @@ async function recordHit(req, res, next) {
 }
 
 async function checkGrants(req, res, next) {
-  const { user } = res.locals.oauth.token;
-  if (typeof user === "object") {
-    if (
-      user.grants === "password" &&
-      (user.detail.email === req.input.email ||
-        user.detail.username == req.input.username ||
-        user.detail.id == req.input.id_user ||
-        user.detail.id == req.params.id_user ||
-        constant.AVAILABLE_PATH.indexOf(req.originalUrl.replace(/\?.*/, "")) >
-          -1)
-    ) {
-      // logger.debug('Grant Password OK')
-      next();
-    } else if (
-      user.grants === "client_credentials" &&
-      constant.ALLOW_CLIENT_CREDENTIAL.indexOf(
-        req.originalUrl.replace(/\d+|\?.*/gm, "")
-      ) > -1
-    ) {
-      // logger.debug('Grant CC OK')
-      next();
-    } else {
-      logger.info("Invalid Grants #1");
-      res.status(generalResp.HTTP_BADREQUEST);
-      res.send({
-        error: "invalid_grants",
-        error_description: "Invalid grant: access is invalid #2",
-      });
-    }
+  let result = {
+    rc: generalResp.HTTP_BADREQUEST,
+    rd: "Invalid grant: access is invalid",
+    data: {},
+  };
+
+  if (req.originalUrl === "/users-backend/signin") {
+    return next();
   } else {
-    logger.info("Invali Grants #1");
+    let tokenHeader = req.headers.authorization;
+    if (typeof tokenHeader !== "undefined") {
+      if (tokenHeader.split(" ")[0] !== "Bearer") {
+        return res.status(500).send({
+          auth: false,
+          message: "Error",
+          errors: "Incorrect token format",
+        });
+      }
+
+      let token = tokenHeader.split(" ")[1];
+      if (!token) {
+        return res.status(403).send({
+          auth: false,
+          message: "Error",
+          errors: "No token provided",
+        });
+      }
+
+      jwt.verify(token, process.env.secret, (err, decoded) => {
+        if (err) {
+          return res.status(500).send({
+            auth: false,
+            message: "Error",
+            errors: err,
+          });
+        }
+        req.privilege = decoded.roles;
+      });
+
+      if (
+        req.privilege === "AS_SUPERADMIN" &&
+        constant.ALLOW_CLIENT_CREDENTIAL.indexOf(
+          req.originalUrl.replace(/\d+|\?.*/gm, "")
+        ) > -1
+      ) {
+        return next();
+      }
+    }
+
+    logger.info("Invalid Grants #1");
     res.status(generalResp.HTTP_BADREQUEST);
     res.send({
       error: "invalid_grants",
-      error_description: "Invalid grant: access is invalid #1",
+      error_description: "Invalid grant: access is invalid #2",
     });
   }
 }

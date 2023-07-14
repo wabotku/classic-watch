@@ -1,25 +1,21 @@
 const { Op, QueryTypes } = require("../models/merchant/init-models").Sequelize;
 const sequelize = require("../models/merchant/init-models").sequelize;
-const { merchant } = require("../models/merchant/init-models");
+const { merchant, search } = require("../models/merchant/init-models");
 const generalResp = require("../utilities/httpResp");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const middleware = require("../utilities/middleware");
 const { v4: uuidv4 } = require("uuid");
 
-exports.findAll = async (req, res, next) => {
+exports.getMerchant = async (req, res, next) => {
   let result;
   try {
-    let getData = await merchant.findAll({
-      where: {
-        isActive: 1,
-      },
-    });
+    let data = await search.merchant(merchant, req.body);
 
     result = {
       rc: generalResp.HTTP_OK,
       rd: "Sukses",
-      data: getData,
+      data: data,
     };
     res.locals.response = JSON.stringify(result);
     next();

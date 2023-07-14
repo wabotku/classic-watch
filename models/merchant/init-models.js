@@ -26,5 +26,6 @@ db.sequelize = sequelize;
 db.merchant = require("./cw_m_merchant")(sequelize, Sequelize);
 db.merk = require("./cw_m_merk")(sequelize, Sequelize);
 db.product = require("./cw_m_product")(sequelize, Sequelize);
+db.search = require("../helper");
 
 module.exports = db;
